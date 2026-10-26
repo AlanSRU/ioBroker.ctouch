@@ -30,3 +30,5 @@ npm-debug.log*
 # Manufacturer protocol documents: reference only, not ours to republish
 docs/*.pdf
 docs/*.png
+docs/*.jpeg
+docs/*.jpg
