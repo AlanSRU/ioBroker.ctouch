@@ -1,0 +1,106 @@
+{
+    "common": {
+        "name": "ctouch",
+        "version": "0.0.1",
+        "news": {
+            "0.0.1": {
+                "en": "initial release",
+                "de": "Erstveröffentlichung",
+                "ru": "Начальная версия",
+                "pt": "lançamento inicial",
+                "nl": "Eerste uitgave",
+                "fr": "Première version",
+                "it": "Versione iniziale",
+                "es": "Versión inicial",
+                "pl": "Pierwsze wydanie",
+                "uk": "Початкова версія",
+                "zh-cn": "首次出版"
+            }
+        },
+        "titleLang": {
+            "en": "CTOUCH",
+            "de": "CTOUCH",
+            "ru": "КАСАНИЕ",
+            "pt": "TOQUE",
+            "nl": "CTOUCH",
+            "fr": "CTOUCHER",
+            "it": "TOCCARE",
+            "es": "TOQUE",
+            "pl": "DOTYK",
+            "uk": "CTOUCH",
+            "zh-cn": "触摸屏"
+        },
+        "desc": {
+            "en": "Control CTOUCH interactive displays over their RS-232 protocol, via a serial-to-Ethernet converter or the display's own network port: power, volume, mute and input, each confirmed by the display, with status queries.",
+            "de": "Steuern Sie interaktive CTOUCH-Displays über ihr RS-232-Protokoll, über einen Seriell-zu-Ethernet-Konverter oder den eigenen Netzwerkanschluss des Displays: Stromversorgung, Lautstärke, Stummschaltung und Eingabe, jeweils vom Display bestätigt, mit Statusabfragen.",
+            "ru": "Управляйте интерактивными дисплеями CTOUCH по протоколу RS-232, через преобразователь последовательного порта в Ethernet или собственный сетевой порт дисплея: питание, громкость, отключение звука и ввод, каждый из которых подтверждается дисплеем с запросами состояния.",
+            "pt": "Controle os displays interativos CTOUCH através do protocolo RS-232, por meio de um conversor serial para Ethernet ou da própria porta de rede do display: alimentação, volume, mudo e entrada, cada um confirmado pelo display, com consultas de status.",
+            "nl": "Bedien interactieve CTOUCH-displays via hun RS-232-protocol, via een serieel-naar-Ethernet-converter of de eigen netwerkpoort van het display: stroom, volume, dempen en invoer, elk bevestigd door het display, met statusvragen.",
+            "fr": "Contrôlez les écrans interactifs CTOUCH via leur protocole RS-232, via un convertisseur série-Ethernet ou le propre port réseau de l'écran : alimentation, volume, sourdine et entrée, chacun confirmé par l'écran, avec des requêtes d'état.",
+            "it": "Controlla i display interattivi CTOUCH tramite il loro protocollo RS-232, tramite un convertitore da seriale a Ethernet o la porta di rete propria del display: alimentazione, volume, disattivazione audio e input, ciascuno confermato dal display, con domande sullo stato.",
+            "es": "Controle las pantallas interactivas CTOUCH a través de su protocolo RS-232, mediante un conversor serie a Ethernet o el propio puerto de red de la pantalla: encendido, volumen, silencio y entrada, cada uno confirmado por la pantalla, con consultas de estado.",
+            "pl": "Steruj interaktywnymi wyświetlaczami CTOUCH poprzez protokół RS-232, poprzez konwerter szeregowy na Ethernet lub własny port sieciowy wyświetlacza: zasilanie, głośność, wyciszenie i wejście, każde potwierdzone przez wyświetlacz, z zapytaniami o status.",
+            "uk": "Керуйте інтерактивними дисплеями CTOUCH через їхній протокол RS-232, через перетворювач послідовного порту в Ethernet або власний мережевий порт дисплея: живлення, гучність, вимкнення звуку та введення, кожне з яких підтверджується дисплеєм із запитами стану.",
+            "zh-cn": "通过串行以太网转换器或显示器自己的网络端口，通过 RS-232 协议控制 CTOUCH 交互式显示器：电源、音量、静音和输入，每项均由显示器确认并带有状态查询。"
+        },
+        "authors": ["Alan Paris <alan.paris@scottish.rugby>"],
+        "keywords": ["ctouch", "display", "rs232", "interactive display", "av"],
+        "licenseInformation": {
+            "type": "free",
+            "license": "MIT"
+        },
+        "platform": "Javascript/Node.js",
+        "icon": "ctouch.png",
+        "enabled": true,
+        "extIcon": "https://raw.githubusercontent.com/AlanSRU/ioBroker.ctouch/main/admin/ctouch.png",
+        "readme": "https://github.com/AlanSRU/ioBroker.ctouch/blob/main/README.md",
+        "loglevel": "info",
+        "tier": 3,
+        "mode": "daemon",
+        "type": "multimedia",
+        "compact": true,
+        "connectionType": "local",
+        "dataSource": "poll",
+        "adminUI": {
+            "config": "json"
+        },
+        "dependencies": [
+            {
+                "js-controller": ">=6.0.11"
+            }
+        ],
+        "globalDependencies": [
+            {
+                "admin": ">=7.0.23"
+            }
+        ]
+    },
+    "native": {
+        "option1": true,
+        "option2": "42"
+    },
+    "objects": [],
+    "instanceObjects": [
+        {
+            "_id": "info",
+            "type": "channel",
+            "common": {
+                "name": "Information"
+            },
+            "native": {}
+        },
+        {
+            "_id": "info.connection",
+            "type": "state",
+            "common": {
+                "role": "indicator.connected",
+                "name": "Device or service connected",
+                "type": "boolean",
+                "read": true,
+                "write": false,
+                "def": false
+            },
+            "native": {}
+        }
+    ]
+}
