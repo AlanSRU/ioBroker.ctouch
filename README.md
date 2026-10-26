@@ -10,120 +10,77 @@
 
 **Tests:** ![Test and Release](https://github.com/AlanSRU/ioBroker.ctouch/workflows/Test%20and%20Release/badge.svg)
 
-## ctouch adapter for ioBroker
+## CTOUCH / i3-CONNECT adapter for ioBroker
 
-Control CTOUCH interactive displays over their RS-232 protocol, via a serial-to-Ethernet converter or the display's own network port: power, volume, mute and input, each confirmed by the display, with status queries.
+Controls CTOUCH and i3-CONNECT interactive displays over their RS-232 protocols: **power, volume,
+mute and input**. A display can be reached through a serial-to-Ethernet converter on its RS-232 port,
+or directly on its own network port.
 
-## Developer manual
-This section is intended for the developer. It can be deleted later.
+Every value comes from the display. A write is acknowledged only when the display confirms it, and
+the four controls are read back every poll interval, so a change made with the display's own remote
+or buttons shows up too.
 
-### DISCLAIMER
+### Supported models
 
-Please make sure that you consider copyrights and trademarks when you use names or logos of a company and add a disclaimer to your README.
-You can check other adapters for examples or ask in the developer community. Using a name or logo of a company without permission may cause legal problems for you.
+| Model | Protocol | Factory baud | Network port |
+|---|---|---|---|
+| CTOUCH Laser Nova | CTOUCH binary | 9600 | TCP 5000 |
+| CTOUCH Laser Sky | CTOUCH binary | 9600 | TCP 5000 |
+| CTOUCH Riva R2 | CTOUCH binary | 9600 | TCP 5000 |
+| CTOUCH Neo | CTOUCH binary | 115200 | — |
+| i3-CONNECT Cactus | i3-CONNECT ASCII | 9600 | TCP 4664 |
+| i3-CONNECT Veneer 2 | i3-CONNECT ASCII | 9600 | TCP 4664 |
 
-### Getting started
+Each model has its own input list, taken from its manufacturer document. Input codes are not shared
+between models: `0D` is Android on a Laser Nova but HDMI 4 on a Laser Sky.
 
-You are almost done, only a few steps left:
-1. Create a new repository on GitHub with the name `ioBroker.ctouch`
-1. Initialize the current folder as a new git repository:  
-    ```bash
-    git init -b main
-    git add .
-    git commit -m "Initial commit"
-    ```
-1. Link your local repository with the one on GitHub:  
-    ```bash
-    git remote add origin https://github.com/AlanSRU/ioBroker.ctouch
-    ```
+The i3-CONNECT **Walnut W1** uses a different protocol (checksummed frames over UDP 8600) and is not
+supported yet.
 
-1. Push all files to the GitHub repo:  
-    ```bash
-    git push origin main
-    ```
+Tested on hardware: Laser Nova (via a serial converter). The other models are implemented from
+their documents and tested against a simulator; reports from owners are welcome.
 
-1. Head over to [src/main.ts](src/main.ts) and start programming!
+### Configuration
 
-### Best Practices
-We've collected some [best practices](https://github.com/ioBroker/ioBroker.repositories#development-and-coding-best-practices) regarding ioBroker development and coding in general. If you're new to ioBroker or Node.js, you should
-check them out. If you're already experienced, you should also take a look at them - you might learn something new :)
+One row per display:
 
-### State Roles
-When creating state objects, it is important to use the correct role for the state. The role defines how the state should be interpreted by visualizations and other adapters. For a list of available roles and their meanings, please refer to the [state roles documentation](https://www.iobroker.net/#en/documentation/dev/stateroles.md).
+| Column | Meaning |
+|---|---|
+| Model | which input list and protocol to use |
+| Connection | **Serial converter**: an RS-232-to-Ethernet converter in TCP server mode on the display's RS-232 port. **Display network port**: the display's own RS-232-over-IP port |
+| IP address / Port | of the converter, or of the display. Port 0 with a network connection means the model's documented port |
+| Set ID | must match the ID set in the display's menu (1-255; 0 broadcasts and is never answered) |
+| MAC address | only for switching a display on over the network (Wake-on-LAN) |
 
-**Important:** Do not invent your own custom role names. If you need a role that is not part of the official list, please contact the ioBroker developer community for guidance and discussion about adding new roles.
+**Serial converter:** set its serial side to the display's baud rate (above), 8 data bits, no
+parity, 1 stop bit. On the display's DB9: pin 2 TxD, pin 3 RxD, pin 5 GND.
 
-### Scripts in `package.json`
-Several npm scripts are predefined for your convenience. You can run them using `npm run <scriptname>`
-| Script name | Description |
-|-------------|-------------|
-| `build` | Compile the TypeScript sources. |
-| `watch` | Compile the TypeScript sources and watch for changes. |
-| `test:ts` | Executes the tests you defined in `*.test.ts` files. |
-| `test:package` | Ensures your `package.json` and `io-package.json` are valid. |
-| `test:integration` | Tests the adapter startup with an actual instance of ioBroker. |
-| `test` | Performs a minimal test run on package files and your tests. |
-| `check` | Performs a type-check on your code (without compiling anything). |
-| `lint` | Runs `ESLint` to check your code for formatting errors and potential bugs. |
-| `translate` | Translates texts in your adapter to all required languages, see [`@iobroker/adapter-dev`](https://github.com/ioBroker/adapter-dev#manage-translations) for more details. |
-| `release` | Creates a new release, see [`@alcalzone/release-script`](https://github.com/AlCalzone/release-script#usage) for more details. |
+**Display network port:** in standby a display ignores network commands, so it is switched on by
+Wake-on-LAN (enable it in the display's settings and enter its MAC address). While it does not
+answer, the adapter reports it as off.
 
-### Configuring the compilation
-The adapter template uses [esbuild](https://esbuild.github.io/) to compile TypeScript and/or React code. You can configure many compilation settings 
-either in `tsconfig.json` or by changing options for the build tasks. These options are described in detail in the
-[`@iobroker/adapter-dev` documentation](https://github.com/ioBroker/adapter-dev#compile-adapter-files).
+### States
 
-### Writing tests
-When done right, testing code is invaluable, because it gives you the 
-confidence to change your code while knowing exactly if and when 
-something breaks. A good read on the topic of test-driven development 
-is https://hackernoon.com/introduction-to-test-driven-development-tdd-61a13bc92d92. 
-Although writing tests before the code might seem strange at first, but it has very 
-clear upsides.
+Per display, in `ctouch.0.<name>`:
 
-The template provides you with basic tests for the adapter startup and package files.
-It is recommended that you add your own tests into the mix.
+| State | Type | |
+|---|---|---|
+| `control.power` | boolean | writable |
+| `control.volume` | number 0-100 | writable |
+| `control.mute` | boolean | writable |
+| `control.input` | string | writable; the display's input code, e.g. `05` (HDMI 1) on a Laser Nova, `001` on a Cactus. The allowed values are listed in the object |
+| `info.connection` | boolean | the display is answering |
+| `info.lastError` | string | why the last write did not complete (refused, no reply, invalid input) |
+| `info.model` | string | configured model |
 
-### Publishing the adapter
-Using GitHub Actions, you can enable automatic releases on npm whenever you push a new git tag that matches the form 
-`v<major>.<minor>.<patch>`. We **strongly recommend** that you do. The necessary steps are described in `.github/workflows/test-and-release.yml`.
+`ctouch.0.info.connection` is true while any display answers.
 
-Since you installed the release script, you can create a new
-release simply by calling:
-```bash
-npm run release
-```
-Additional command line options for the release script are explained in the
-[release-script documentation](https://github.com/AlCalzone/release-script#command-line).
+### Protocol notes
 
-To get your adapter released in ioBroker, please refer to the documentation 
-of [ioBroker.repositories](https://github.com/ioBroker/ioBroker.repositories#requirements-for-adapter-to-get-added-to-the-latest-repository).
-
-### Test the adapter manually on a local ioBroker installation
-In order to install the adapter locally without publishing, the following steps are recommended:
-1. Create a GitHub repository for your adapter if you haven't already
-1. Push your code to the GitHub repository
-1. Use the ioBroker Admin interface or command line to install the adapter from GitHub:
-    * **Via Admin UI**: Go to the "Adapters" tab, click on "Custom Install" (GitHub icon), and enter your repository URL:
-        ```
-        https://github.com/AlanSRU/ioBroker.ctouch
-        ```
-        You can also install from a specific branch by adding `#branchname` at the end:
-        ```
-        https://github.com/AlanSRU/ioBroker.ctouch#dev
-        ```
-    * **Via Command Line**: Install using the `iob` command:
-        ```bash
-        iob url https://github.com/AlanSRU/ioBroker.ctouch
-        ```
-        Or from a specific branch:
-        ```bash
-        iob url https://github.com/AlanSRU/ioBroker.ctouch#dev
-        ```
-
-For later updates:
-1. Push your changes to GitHub
-1. Repeat the installation steps above (via Admin UI or `iob url` command) to update the adapter
+- One request at a time; a request with no reply within 500 ms is retried once.
+- Re-selecting the input that is already showing is answered only after about 3 s; the adapter
+  waits for it instead of retrying.
+- The displays never report a change by themselves, hence the poll (default every 30 s).
 
 ## Changelog
 <!--
@@ -132,7 +89,7 @@ For later updates:
 -->
 
 ### **WORK IN PROGRESS**
-* (Alan Paris) initial release
+* (Alan Paris) Initial release: CTOUCH Laser Nova, Laser Sky, Riva R2, Neo and i3-CONNECT Cactus, Veneer 2; power, volume, mute and input, confirmed by the display
 
 ## License
 MIT License

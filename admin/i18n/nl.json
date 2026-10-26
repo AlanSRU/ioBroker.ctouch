@@ -1,5 +1,16 @@
 {
-    "ctouch adapter settings": "Adapterinstellingen voor ctouch",
-    "option1": "optie1",
-    "option2": "optie2"
+    "displaysHint": "Eén rij per display. Poort 0 betekent de netwerkpoort van het display wanneer de verbinding het display is: 5000 voor Laser Nova, Laser Sky en Riva R2, 4664 voor Cactus en Veneer 2. Een seriële converter heeft een eigen poort nodig. Het Set ID moet overeenkomen met het ID in het menu van het display. Het MAC-adres is alleen nodig om een display via het netwerk in te schakelen met Wake-on-LAN.",
+    "Displays": "Displays",
+    "Active": "Actief",
+    "Name": "Naam",
+    "Model": "Model",
+    "Connection": "Verbinding",
+    "Serial converter": "Seriële converter",
+    "Display network port": "Netwerkpoort van het display",
+    "IP address or host name": "IP-adres of hostnaam",
+    "Port": "Poort",
+    "Set ID": "Set ID",
+    "MAC address": "MAC-adres",
+    "Poll interval (s)": "Pollinterval (s)",
+    "pollHelp": "Hoe vaak aan/uit, volume, dempen en ingang worden teruggelezen, om wijzigingen op het display zelf op te pikken"
 }

@@ -1,5 +1,16 @@
 {
-    "ctouch adapter settings": "ctouch的适配器设置",
-    "option1": "选项1",
-    "option2": "选项2"
+    "displaysHint": "每台显示屏一行。当连接方式为显示屏时，端口 0 表示显示屏自带的网络端口：Laser Nova、Laser Sky 和 Riva R2 为 5000，Cactus 和 Veneer 2 为 4664。串口转换器需要填写其自己的端口。Set ID 必须与显示屏菜单中的 ID 一致。MAC 地址仅用于通过网络唤醒（Wake-on-LAN）开启显示屏。",
+    "Displays": "显示屏",
+    "Active": "启用",
+    "Name": "名称",
+    "Model": "型号",
+    "Connection": "连接方式",
+    "Serial converter": "串口转换器",
+    "Display network port": "显示屏网络端口",
+    "IP address or host name": "IP 地址或主机名",
+    "Port": "端口",
+    "Set ID": "Set ID",
+    "MAC address": "MAC 地址",
+    "Poll interval (s)": "轮询间隔（秒）",
+    "pollHelp": "重新读取电源、音量、静音和输入的频率，用于获取在显示屏上直接进行的更改"
 }

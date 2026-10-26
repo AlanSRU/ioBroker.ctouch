@@ -1,5 +1,16 @@
 {
-    "ctouch adapter settings": "Paramètres d'adaptateur pour ctouch",
-    "option1": "option1",
-    "option2": "option2"
+    "displaysHint": "Une ligne par écran. Le port 0 désigne le port réseau de l'écran lorsque la connexion est l'écran : 5000 pour Laser Nova, Laser Sky et Riva R2, 4664 pour Cactus et Veneer 2. Un convertisseur série nécessite son propre port. Le Set ID doit correspondre à l'ID défini dans le menu de l'écran. L'adresse MAC n'est nécessaire que pour allumer un écran via le réseau par Wake-on-LAN.",
+    "Displays": "Écrans",
+    "Active": "Actif",
+    "Name": "Nom",
+    "Model": "Modèle",
+    "Connection": "Connexion",
+    "Serial converter": "Convertisseur série",
+    "Display network port": "Port réseau de l'écran",
+    "IP address or host name": "Adresse IP ou nom d'hôte",
+    "Port": "Port",
+    "Set ID": "Set ID",
+    "MAC address": "Adresse MAC",
+    "Poll interval (s)": "Intervalle d'interrogation (s)",
+    "pollHelp": "Fréquence de relecture de l'alimentation, du volume, de la sourdine et de l'entrée, pour détecter les changements faits sur l'écran lui-même"
 }

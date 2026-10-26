@@ -1,5 +1,16 @@
 {
-    "ctouch adapter settings": "Ustawienia adaptera dla ctouch",
-    "option1": "opcja 1",
-    "option2": "opcja 2"
+    "displaysHint": "Jeden wiersz na wyświetlacz. Port 0 oznacza port sieciowy wyświetlacza, gdy połączeniem jest wyświetlacz: 5000 dla Laser Nova, Laser Sky i Riva R2, 4664 dla Cactus i Veneer 2. Konwerter szeregowy wymaga własnego portu. Set ID musi odpowiadać ID ustawionemu w menu wyświetlacza. Adres MAC jest potrzebny tylko do włączania wyświetlacza przez sieć za pomocą Wake-on-LAN.",
+    "Displays": "Wyświetlacze",
+    "Active": "Aktywny",
+    "Name": "Nazwa",
+    "Model": "Model",
+    "Connection": "Połączenie",
+    "Serial converter": "Konwerter szeregowy",
+    "Display network port": "Port sieciowy wyświetlacza",
+    "IP address or host name": "Adres IP lub nazwa hosta",
+    "Port": "Port",
+    "Set ID": "Set ID",
+    "MAC address": "Adres MAC",
+    "Poll interval (s)": "Interwał odpytywania (s)",
+    "pollHelp": "Jak często odczytywane są zasilanie, głośność, wyciszenie i wejście, aby wykryć zmiany wprowadzone na samym wyświetlaczu"
 }
