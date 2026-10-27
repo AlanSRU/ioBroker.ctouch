@@ -37,8 +37,9 @@ between models: `0D` is Android on a Laser Nova but HDMI 4 on a Laser Sky.
 The i3-CONNECT **Walnut W1** uses a different protocol (checksummed frames over UDP 8600) and is not
 supported yet.
 
-Tested on hardware: Laser Nova (via a serial converter). The other models are implemented from
-their documents and tested against a simulator; reports from owners are welcome.
+Not yet tested on hardware: every model is implemented from its manufacturer document and tested
+against a simulator. A Laser Nova on a serial converter is the first planned. Reports from owners
+are welcome.
 
 ### Configuration
 
