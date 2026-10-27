@@ -12,5 +12,7 @@
     "Set ID": "Set ID",
     "MAC address": "Adres MAC",
     "Poll interval (s)": "Interwał odpytywania (s)",
-    "pollHelp": "Jak często odczytywane są zasilanie, głośność, wyciszenie i wejście, aby wykryć zmiany wprowadzone na samym wyświetlaczu"
+    "pollHelp": "Jak często odczytywane są zasilanie, głośność, wyciszenie, wejście i (w modelach CTOUCH) podświetlenie, aby wykryć zmiany wprowadzone na samym wyświetlaczu",
+    "Remote keys": "Przyciski pilota",
+    "keysHint": "Aby nacisnąć przycisk pilota wyświetlacza, wpisz jego nazwę do <wyświetlacz>.control.key (np. ctouch.0.cap_thistle.control.key = menu). Każdy model ma własne przyciski:"
 }

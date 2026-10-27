@@ -138,6 +138,71 @@
             "md": 4,
             "lg": 3,
             "xl": 3
+        },
+        "keysHeader": {
+            "type": "header",
+            "text": "Remote keys",
+            "size": 4,
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 12,
+            "xl": 12
+        },
+        "keysHint": {
+            "type": "staticText",
+            "text": "keysHint",
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 12,
+            "xl": 12
+        },
+        "keysAnnexB": {
+            "type": "staticText",
+            "text": "Laser Nova, Laser Sky, Riva R2: power, input, up, down, left, right, enter, menu, home, exit, volumeUp, volumeDown, mute, backlight, freeze, screenshot",
+            "noTranslation": true,
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 12,
+            "xl": 12
+        },
+        "keysNeo": {
+            "type": "staticText",
+            "text": "Neo: power, input, enter, menu, home, exit, mute, volumeUp, volumeDown, screenshot, annotation",
+            "noTranslation": true,
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 12,
+            "xl": 12
+        },
+        "keysCactus": {
+            "type": "staticText",
+            "text": "Cactus: volumeUp, volumeDown, up, down, left, right, enter, menu, input, exit, mute, home",
+            "noTranslation": true,
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 12,
+            "xl": 12
+        },
+        "keysVeneer2": {
+            "type": "staticText",
+            "text": "Veneer 2: volumeUp, volumeDown, up, down, left, right, enter, menu, input, exit, mute, home, blank, freeze",
+            "noTranslation": true,
+            "newLine": true,
+            "xs": 12,
+            "sm": 12,
+            "md": 12,
+            "lg": 12,
+            "xl": 12
         }
     }
 }

@@ -12,5 +12,7 @@
     "Set ID": "Set ID",
     "MAC address": "Indirizzo MAC",
     "Poll interval (s)": "Intervallo di interrogazione (s)",
-    "pollHelp": "Ogni quanto vengono riletti accensione, volume, muto e ingresso, per rilevare le modifiche fatte sul display stesso"
+    "pollHelp": "Ogni quanto vengono riletti accensione, volume, muto, ingresso e (sui modelli CTOUCH) retroilluminazione, per rilevare le modifiche fatte sul display stesso",
+    "Remote keys": "Tasti del telecomando",
+    "keysHint": "Per premere un tasto del telecomando di un display, scrivere il suo nome in <display>.control.key (ad es. ctouch.0.cap_thistle.control.key = menu). Ogni modello ha i propri tasti:"
 }

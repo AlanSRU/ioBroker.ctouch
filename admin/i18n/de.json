@@ -12,5 +12,7 @@
     "Set ID": "Set-ID",
     "MAC address": "MAC-Adresse",
     "Poll interval (s)": "Abfrageintervall (s)",
-    "pollHelp": "Wie oft Ein/Aus, Lautstärke, Stummschaltung und Eingang zurückgelesen werden, um Änderungen am Display selbst zu erfassen"
+    "pollHelp": "Wie oft Ein/Aus, Lautstärke, Stummschaltung, Eingang und (bei CTOUCH-Modellen) Hintergrundbeleuchtung zurückgelesen werden, um Änderungen am Display selbst zu erfassen",
+    "Remote keys": "Fernbedienungstasten",
+    "keysHint": "Um eine Taste der Fernbedienung eines Displays zu drücken, ihren Namen in <Display>.control.key schreiben (z. B. ctouch.0.cap_thistle.control.key = menu). Jedes Modell hat eigene Tasten:"
 }

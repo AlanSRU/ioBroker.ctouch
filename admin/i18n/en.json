@@ -12,5 +12,7 @@
     "Set ID": "Set ID",
     "MAC address": "MAC address",
     "Poll interval (s)": "Poll interval (s)",
-    "pollHelp": "How often power, volume, mute and input are read back, to pick up changes made on the display itself"
+    "pollHelp": "How often power, volume, mute, input and (on CTOUCH models) backlight are read back, to pick up changes made on the display itself",
+    "Remote keys": "Remote keys",
+    "keysHint": "To press a key on a display's remote, write its name to <display>.control.key (e.g. ctouch.0.cap_thistle.control.key = menu). Each model has its own keys:"
 }

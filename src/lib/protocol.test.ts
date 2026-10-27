@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { a9, i3 } from './protocol';
 import { KEY_LABELS, MODELS, formatInput, parseInput } from './models';
+import jsonConfig from '../../admin/jsonConfig.json';
 
 const hex = (b: Buffer): string => b.toString('hex').toUpperCase();
 const bytes = (s: string): Buffer => Buffer.from(s.replace(/\s/g, ''), 'hex');
@@ -133,6 +134,15 @@ describe('models', () => {
             Object.keys(model.keys).forEach(k => expect(KEY_LABELS, `${id} ${k}`).to.have.property(k));
             const codes = Object.values(model.keys);
             expect(new Set(codes).size, id).to.equal(codes.length);
+        }
+    });
+
+    it("lists every model's keys on the admin page, as models.ts has them", () => {
+        const items = Object.values(jsonConfig.items as Record<string, { text?: string }>);
+        for (const model of Object.values(MODELS)) {
+            const short = model.name.replace(/^(CTOUCH|i3-CONNECT) /, '');
+            const line = items.find(i => i.text?.split(': ')[0].split(', ').includes(short));
+            expect(line?.text?.split(': ')[1], model.name).to.equal(Object.keys(model.keys).join(', '));
         }
     });
 

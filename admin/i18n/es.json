@@ -12,5 +12,7 @@
     "Set ID": "Set ID",
     "MAC address": "Dirección MAC",
     "Poll interval (s)": "Intervalo de consulta (s)",
-    "pollHelp": "Con qué frecuencia se vuelven a leer encendido, volumen, silencio y entrada, para detectar cambios hechos en la propia pantalla"
+    "pollHelp": "Con qué frecuencia se vuelven a leer encendido, volumen, silencio, entrada y (en los modelos CTOUCH) retroiluminación, para detectar cambios hechos en la propia pantalla",
+    "Remote keys": "Teclas del mando",
+    "keysHint": "Para pulsar una tecla del mando de una pantalla, escriba su nombre en <pantalla>.control.key (p. ej. ctouch.0.cap_thistle.control.key = menu). Cada modelo tiene sus propias teclas:"
 }

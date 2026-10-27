@@ -12,5 +12,7 @@
     "Set ID": "Set ID",
     "MAC address": "MAC-adres",
     "Poll interval (s)": "Pollinterval (s)",
-    "pollHelp": "Hoe vaak aan/uit, volume, dempen en ingang worden teruggelezen, om wijzigingen op het display zelf op te pikken"
+    "pollHelp": "Hoe vaak aan/uit, volume, dempen, ingang en (bij CTOUCH-modellen) achtergrondverlichting worden teruggelezen, om wijzigingen op het display zelf op te pikken",
+    "Remote keys": "Afstandsbedieningstoetsen",
+    "keysHint": "Om een toets van de afstandsbediening van een display in te drukken, schrijf je de naam naar <display>.control.key (bijv. ctouch.0.cap_thistle.control.key = menu). Elk model heeft eigen toetsen:"
 }

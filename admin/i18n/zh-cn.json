@@ -12,5 +12,7 @@
     "Set ID": "Set ID",
     "MAC address": "MAC 地址",
     "Poll interval (s)": "轮询间隔（秒）",
-    "pollHelp": "重新读取电源、音量、静音和输入的频率，用于获取在显示屏上直接进行的更改"
+    "pollHelp": "重新读取电源、音量、静音、输入以及（CTOUCH 型号的）背光的频率，用于获取在显示屏上直接进行的更改",
+    "Remote keys": "遥控器按键",
+    "keysHint": "要按下显示屏遥控器上的按键，请将按键名称写入 <显示屏>.control.key（例如 ctouch.0.cap_thistle.control.key = menu）。每个型号的按键不同："
 }

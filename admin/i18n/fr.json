@@ -12,5 +12,7 @@
     "Set ID": "Set ID",
     "MAC address": "Adresse MAC",
     "Poll interval (s)": "Intervalle d'interrogation (s)",
-    "pollHelp": "Fréquence de relecture de l'alimentation, du volume, de la sourdine et de l'entrée, pour détecter les changements faits sur l'écran lui-même"
+    "pollHelp": "Fréquence de relecture de l'alimentation, du volume, de la sourdine, de l'entrée et (sur les modèles CTOUCH) du rétroéclairage, pour détecter les changements faits sur l'écran lui-même",
+    "Remote keys": "Touches de la télécommande",
+    "keysHint": "Pour appuyer sur une touche de la télécommande d'un écran, écrivez son nom dans <écran>.control.key (p. ex. ctouch.0.cap_thistle.control.key = menu). Chaque modèle a ses propres touches :"
 }
