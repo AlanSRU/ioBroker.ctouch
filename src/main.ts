@@ -6,13 +6,13 @@
  *
  * One instance drives any number of displays, each in its own device folder. Every value in the
  * object tree comes from the display: a write is acknowledged only when the display confirms it,
- * and the four controls are re-read every poll interval, because no family reports a change made
+ * and the controls are re-read every poll interval, because no family reports a change made
  * with the display's own remote by itself.
  */
 import * as utils from '@iobroker/adapter-core';
 import { DisplayClient } from './lib/client';
-import { DEFAULT_MODEL, MODELS, formatInput, parseInput, type ModelDef } from './lib/models';
-import { CODECS, FIELDS, type Codec, type Field } from './lib/protocol';
+import { DEFAULT_MODEL, KEY_LABELS, MODELS, formatInput, parseInput, type ModelDef } from './lib/models';
+import { CODECS, type Codec, type Field } from './lib/protocol';
 import { parseMac, wake } from './lib/wol';
 
 /** Object ids that belong to the instance itself and cannot name a display. */
@@ -231,6 +231,14 @@ class Ctouch extends utils.Adapter {
             write: true,
             states: Object.fromEntries(d.model.inputs.map(i => [formatInput(d.model.protocol, i.code), i.name])),
         });
+        await state('control.backlight', { name: 'Backlight', type: 'boolean', role: 'switch', write: true });
+        await state('control.key', {
+            name: 'Remote key',
+            type: 'string',
+            role: 'state',
+            write: true,
+            states: Object.fromEntries(Object.keys(d.model.keys).map(k => [k, KEY_LABELS[k]])),
+        });
         await state('info.connection', {
             name: 'Display answering',
             type: 'boolean',
@@ -270,7 +278,7 @@ class Ctouch extends utils.Adapter {
     }
 
     private queryAll(d: Display): void {
-        FIELDS.forEach(field => d.client.query(field));
+        d.codec.polled.forEach(field => d.client.query(field));
     }
 
     private async onAnswering(d: Display, answering: boolean): Promise<void> {
@@ -288,12 +296,33 @@ class Ctouch extends utils.Adapter {
     private async onValue(d: Display, field: Field, value: number): Promise<void> {
         let val: ioBroker.StateValue;
         switch (field) {
-            case 'power':
+            case 'power': {
                 val = d.codec.isPowerOn(value);
+                const lit = d.codec.backlightFromPower(value);
+                if (lit !== undefined) {
+                    await this.setState(`${d.id}.control.backlight`, { val: lit, ack: true });
+                }
                 break;
+            }
             case 'mute':
+            case 'backlight':
                 val = value === 1;
                 break;
+            case 'key': {
+                // acknowledged with the key the display confirmed
+                const key = Object.keys(d.model.keys).find(k => d.model.keys[k] === value);
+                if (key === undefined) {
+                    return;
+                }
+                val = key;
+                // the display changed volume or mute by itself: read it now rather than at the next poll
+                if (key === 'volumeUp' || key === 'volumeDown') {
+                    d.client.query('volume');
+                } else if (key === 'mute') {
+                    d.client.query('mute');
+                }
+                break;
+            }
             case 'volume':
                 val = value;
                 break;
@@ -316,8 +345,10 @@ class Ctouch extends utils.Adapter {
     private async fail(d: Display, message: string, field?: Field): Promise<void> {
         this.log.warn(`[${d.label}] ${message}`);
         await this.setState(`${d.id}.info.lastError`, { val: message, ack: true });
-        if (field) {
-            d.client.query(field);
+        // a key press has nothing to read back; i3 reports the backlight in its power reply
+        const readBack = field === 'backlight' && !d.codec.polled.includes('backlight') ? 'power' : field;
+        if (readBack && d.codec.polled.includes(readBack)) {
+            d.client.query(readBack);
         }
     }
 
@@ -364,6 +395,21 @@ class Ctouch extends utils.Adapter {
             case 'control.mute':
                 d.client.set('mute', state.val === true || state.val === 'true' || state.val === 1 ? 1 : 0);
                 break;
+            case 'control.backlight':
+                d.client.set('backlight', state.val === true || state.val === 'true' || state.val === 1 ? 1 : 0);
+                break;
+            case 'control.key': {
+                const key = String(state.val);
+                if (!Object.hasOwn(d.model.keys, key)) {
+                    await this.fail(
+                        d,
+                        `key: "${key}" is not a ${d.model.name} key (${Object.keys(d.model.keys).join(', ')})`,
+                    );
+                    return;
+                }
+                d.client.set('key', d.model.keys[key]);
+                break;
+            }
             case 'control.input': {
                 const code = parseInput(d.model.protocol, state.val);
                 if (code === undefined || !d.model.inputs.some(i => i.code === code)) {

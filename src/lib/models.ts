@@ -25,9 +25,69 @@ export interface ModelDef {
     networkPort?: number;
     /** selectable inputs, in the order offered */
     inputs: InputDef[];
+    /** remote-control keys: key name -> the display's key code */
+    keys: Record<string, number>;
     /** source document */
     document: string;
 }
+
+/** Remote-control key names, as the key state offers them, and their labels. */
+export const KEY_LABELS: Record<string, string> = {
+    power: 'Power',
+    input: 'Input menu',
+    up: 'Up',
+    down: 'Down',
+    left: 'Left',
+    right: 'Right',
+    enter: 'Enter',
+    menu: 'Menu',
+    home: 'Home',
+    exit: 'Back / Exit',
+    volumeUp: 'Volume +',
+    volumeDown: 'Volume -',
+    mute: 'Mute',
+    backlight: 'Backlight mute',
+    blank: 'Blank',
+    freeze: 'Freeze',
+    screenshot: 'Screenshot',
+    annotation: 'Annotation',
+};
+
+/** Annex B of the Laser Nova + Laser Sky V4.02 and Riva R2 V230414 documents (the same table). */
+const ANNEX_B_KEYS = {
+    power: 0xd7,
+    input: 0xc0,
+    up: 0x92,
+    down: 0xd8,
+    left: 0x97,
+    right: 0x9f,
+    enter: 0x9b,
+    menu: 0x84,
+    home: 0xbc,
+    exit: 0xd4,
+    volumeUp: 0x83,
+    volumeDown: 0x86,
+    mute: 0xdf,
+    backlight: 0xb2,
+    freeze: 0xb8,
+    screenshot: 0x62,
+};
+
+/** Remote control command 0x41 of the Cactus v1.2 document. */
+const CACTUS_KEYS = {
+    volumeUp: 0,
+    volumeDown: 1,
+    up: 10,
+    down: 11,
+    left: 12,
+    right: 13,
+    enter: 14,
+    menu: 20,
+    input: 21,
+    exit: 22,
+    mute: 33,
+    home: 34,
+};
 
 export const MODELS: Record<string, ModelDef> = {
     laserNova: {
@@ -46,6 +106,7 @@ export const MODELS: Record<string, ModelDef> = {
             { code: 0x0d, name: 'Android' },
             { code: 0x0c, name: 'Home' },
         ],
+        keys: ANNEX_B_KEYS,
     },
     laserSky: {
         name: 'CTOUCH Laser Sky',
@@ -64,6 +125,7 @@ export const MODELS: Record<string, ModelDef> = {
             { code: 0x09, name: 'Inside PC' },
             { code: 0x0c, name: 'Home' },
         ],
+        keys: ANNEX_B_KEYS,
     },
     rivaR2: {
         name: 'CTOUCH Riva R2',
@@ -83,6 +145,7 @@ export const MODELS: Record<string, ModelDef> = {
             { code: 0x09, name: 'Inside PC' },
             { code: 0x0c, name: 'Android' },
         ],
+        keys: ANNEX_B_KEYS,
     },
     neo: {
         name: 'CTOUCH Neo',
@@ -98,6 +161,20 @@ export const MODELS: Record<string, ModelDef> = {
             { code: 0x09, name: 'OPS' },
             { code: 0x0c, name: 'Android' },
         ],
+        // its own table: no cursor keys, and an annotation key
+        keys: {
+            power: 0xd7,
+            input: 0xc0,
+            enter: 0x9b,
+            menu: 0x84,
+            home: 0xbc,
+            exit: 0xd4,
+            mute: 0xdf,
+            volumeUp: 0x83,
+            volumeDown: 0x86,
+            screenshot: 0x62,
+            annotation: 0x55,
+        },
     },
     cactus: {
         name: 'i3-CONNECT Cactus',
@@ -112,6 +189,7 @@ export const MODELS: Record<string, ModelDef> = {
             { code: 22, name: 'HDMI 4' },
             { code: 101, name: 'Android' },
         ],
+        keys: CACTUS_KEYS,
     },
     veneer2: {
         name: 'i3-CONNECT Veneer 2',
@@ -130,6 +208,7 @@ export const MODELS: Record<string, ModelDef> = {
             { code: 103, name: 'Slot-in PC' },
             { code: 101, name: 'Android' },
         ],
+        keys: { ...CACTUS_KEYS, blank: 31, freeze: 32 },
     },
 };
 

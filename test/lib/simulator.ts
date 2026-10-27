@@ -18,6 +18,8 @@ export interface SimState {
     mute: boolean;
     /** input code */
     input: number;
+    /** backlight lit */
+    backlight: boolean;
 }
 
 /** How the simulated display behaves. */
@@ -34,7 +36,9 @@ export interface SimOptions {
 
 /** A display on a local TCP port, answering as the documents describe. */
 export class DisplaySimulator {
-    public state: SimState = { power: false, volume: 20, mute: false, input: 0 };
+    public state: SimState = { power: false, volume: 20, mute: false, input: 0, backlight: true };
+    /** key codes received, in order */
+    public keys: number[] = [];
     /** every request received, as hex */
     public received: string[] = [];
     /** swallow the next N requests without answering (display busy) */
@@ -114,7 +118,14 @@ export class DisplaySimulator {
             if (id !== this.options.id) {
                 continue; // another display's request (00 would broadcast, and is never answered)
             }
-            const field = { 0x11: 'power', 0x13: 'volume', 0x14: 'mute', 0x15: 'input' }[cmd] as keyof SimState;
+            if (cmd === 0x16 && data !== 0xaa) {
+                this.press(data, { volumeUp: 0x83, volumeDown: 0x86, mute: 0xdf });
+                reply(0x41, data);
+                continue;
+            }
+            const field = { 0x11: 'power', 0x12: 'backlight', 0x13: 'volume', 0x14: 'mute', 0x15: 'input' }[
+                cmd
+            ] as keyof SimState;
             if (!field) {
                 reply(0x4e, 0x01);
                 continue;
@@ -154,12 +165,25 @@ export class DisplaySimulator {
             const value = Number(line.subarray(5, 8).toString('ascii'));
             const field = { 0x30: 'power', 0x38: 'volume', 0x39: 'mute', 0x3a: 'input' }[cmd] as keyof SimState;
             const nak = (): boolean => socket.write(`4${idText}-\r`);
+            const ack = (): boolean => socket.write(`4${idText}+\r`);
+            if (cmd === 0x41 && op === 'S') {
+                this.press(value, { volumeUp: 0, volumeDown: 1, mute: 33 });
+                ack();
+                continue;
+            }
+            // power set 000 / 001 is the backlight
+            if (field === 'power' && op === 'S' && value <= 1) {
+                this.state.backlight = value === 1;
+                ack();
+                continue;
+            }
             if (!field) {
                 nak();
                 continue;
             }
             if (op === 'G') {
-                const v = field === 'power' ? (this.state.power ? 1 : 2) : this.read(field);
+                const v =
+                    field === 'power' ? (this.state.power ? (this.state.backlight ? 1 : 0) : 2) : this.read(field);
                 socket.write(`:${idText}r${String.fromCharCode(cmd)}${String(v).padStart(3, '0')}\r`);
                 continue;
             }
@@ -169,7 +193,7 @@ export class DisplaySimulator {
                 continue;
             }
             const same = field === 'input' && this.wasSameInput;
-            setTimeout(() => socket.write(`4${idText}+\r`), same ? (this.options.sameInputDelayMs ?? 3000) : 10);
+            setTimeout(ack, same ? (this.options.sameInputDelayMs ?? 3000) : 10);
         }
         return buf;
     }
@@ -177,6 +201,26 @@ export class DisplaySimulator {
     // ── shared ────────────────────────────────────────────────────────────────
 
     private wasSameInput = false;
+
+    /**
+     * Record a remote key, acting on the volume and mute keys as the display would.
+     *
+     * @param code - the key code received
+     * @param codes - this family's codes for those keys
+     * @param codes.volumeUp - volume up
+     * @param codes.volumeDown - volume down
+     * @param codes.mute - mute toggle
+     */
+    private press(code: number, codes: { volumeUp: number; volumeDown: number; mute: number }): void {
+        this.keys.push(code);
+        if (code === codes.volumeUp) {
+            this.state.volume = Math.min(100, this.state.volume + 1);
+        } else if (code === codes.volumeDown) {
+            this.state.volume = Math.max(0, this.state.volume - 1);
+        } else if (code === codes.mute) {
+            this.state.mute = !this.state.mute;
+        }
+    }
 
     private read(field: keyof SimState): number {
         const v = this.state[field];
@@ -190,7 +234,7 @@ export class DisplaySimulator {
      * @param data - the requested value
      */
     private write(field: keyof SimState, data: number): number {
-        if (field === 'power' || field === 'mute') {
+        if (field === 'power' || field === 'mute' || field === 'backlight') {
             if (data > 1) {
                 return 0x02;
             }

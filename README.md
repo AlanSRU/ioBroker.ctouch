@@ -13,11 +13,11 @@
 ## CTOUCH / i3-CONNECT adapter for ioBroker
 
 Controls CTOUCH and i3-CONNECT interactive displays over their RS-232 protocols: **power, volume,
-mute and input**. A display can be reached through a serial-to-Ethernet converter on its RS-232 port,
+mute, input, backlight and remote-control keys**. A display can be reached through a serial-to-Ethernet converter on its RS-232 port,
 or directly on its own network port.
 
 Every value comes from the display. A write is acknowledged only when the display confirms it, and
-the four controls are read back every poll interval, so a change made with the display's own remote
+the controls are read back every poll interval, so a change made with the display's own remote
 or buttons shows up too.
 
 ### Supported models
@@ -69,6 +69,8 @@ Per display, in `ctouch.0.<name>`:
 | `control.volume` | number 0-100 | writable |
 | `control.mute` | boolean | writable |
 | `control.input` | string | writable; the display's input code, e.g. `05` (HDMI 1) on a Laser Nova, `001` on a Cactus. The allowed values are listed in the object |
+| `control.backlight` | boolean | writable; screen dark while the display stays on (wakes instantly, and keeps answering over the network) |
+| `control.key` | string | writable; presses a remote-control key, e.g. `menu`, `up`, `enter`, `exit`. The model's keys are listed in the object; acknowledged once the display accepts the key |
 | `info.connection` | boolean | the display is answering |
 | `info.lastError` | string | why the last write did not complete (refused, no reply, invalid input) |
 | `info.model` | string | configured model |
@@ -81,6 +83,8 @@ Per display, in `ctouch.0.<name>`:
 - Re-selecting the input that is already showing is answered only after about 3 s; the adapter
   waits for it instead of retrying.
 - The displays never report a change by themselves, hence the poll (default every 30 s).
+- On i3-CONNECT models the backlight is part of the power command; the power reply reports it.
+- Keys differ per model: the Neo has no cursor keys, the i3-CONNECT models no screenshot key.
 
 ## Changelog
 <!--
@@ -89,7 +93,7 @@ Per display, in `ctouch.0.<name>`:
 -->
 
 ### **WORK IN PROGRESS**
-* (Alan Paris) Initial release: CTOUCH Laser Nova, Laser Sky, Riva R2, Neo and i3-CONNECT Cactus, Veneer 2; power, volume, mute and input, confirmed by the display
+* (Alan Paris) Initial release: CTOUCH Laser Nova, Laser Sky, Riva R2, Neo and i3-CONNECT Cactus, Veneer 2; power, volume, mute, input, backlight and remote keys, confirmed by the display
 
 ## License
 MIT License

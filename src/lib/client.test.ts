@@ -89,6 +89,23 @@ for (const protocol of ['a9', 'i3'] as const) {
             expect(r.values.volume).to.equal(60);
         });
 
+        it('switches the backlight, confirmed by the display', async () => {
+            r.client.set('backlight', 0);
+            await wait(100);
+            expect(r.sim.state.backlight).to.equal(false);
+            expect(r.values.backlight).to.equal(0);
+        });
+
+        it('sends every key press, without collapsing repeats', async () => {
+            const down = protocol === 'a9' ? 0xd8 : 11;
+            r.client.set('key', down);
+            r.client.set('key', down);
+            r.client.set('key', down);
+            await wait(200);
+            expect(r.sim.keys).to.deep.equal([down, down, down]);
+            expect(r.values.key).to.equal(down);
+        });
+
         it('retries once when the display is busy', async () => {
             r.sim.busy = 1;
             r.client.set('mute', 1);

@@ -19,18 +19,23 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var protocol_exports = {};
 __export(protocol_exports, {
   CODECS: () => CODECS,
-  FIELDS: () => FIELDS,
   a9: () => a9,
   i3: () => i3
 });
 module.exports = __toCommonJS(protocol_exports);
-const FIELDS = ["power", "volume", "mute", "input"];
 const A9_START = 169;
 const A9_END = 138;
 const A9_QUERY = 170;
 const A9_ACK = 65;
 const A9_NAK = 78;
-const A9_CMD = { power: 17, volume: 19, mute: 20, input: 21 };
+const A9_CMD = {
+  power: 17,
+  backlight: 18,
+  volume: 19,
+  mute: 20,
+  input: 21,
+  key: 22
+};
 const A9_FIELD = new Map(Object.entries(A9_CMD).map(([field, cmd]) => [cmd, field]));
 function errorText(code) {
   return code === 1 ? "invalid command" : code === 2 ? "invalid data" : `error 0x${hex2(code)}`;
@@ -42,6 +47,9 @@ const a9 = {
   name: "a9",
   powerValue: (on) => on ? 1 : 0,
   isPowerOn: (value) => value === 1,
+  // the backlight has its own query
+  backlightFromPower: () => void 0,
+  polled: ["power", "volume", "mute", "input", "backlight"],
   encodeSet: (field, value, id) => Buffer.from([A9_START, A9_CMD[field], id, value, A9_END]),
   encodeQuery: (field, id) => Buffer.from([A9_START, A9_CMD[field], id, A9_QUERY, A9_END]),
   checkId: (id) => !Number.isInteger(id) || id < 1 || id > 255 ? "Set ID must be 1-255" : id === A9_START || id === A9_END ? "Set ID 138 (0x8A) and 168 (0xA9) are reserved by the protocol" : void 0,
@@ -83,8 +91,17 @@ const a9 = {
 const I3_START = 58;
 const I3_REPLY_START = 52;
 const I3_END = 13;
-const I3_CMD = { power: 48, volume: 56, mute: 57, input: 58 };
-const I3_FIELD = new Map(Object.entries(I3_CMD).map(([field, cmd]) => [cmd, field]));
+const I3_CMD = {
+  power: 48,
+  volume: 56,
+  mute: 57,
+  input: 58,
+  backlight: 48,
+  key: 65
+};
+const I3_FIELD = new Map(
+  Object.entries(I3_CMD).filter(([field]) => field !== "backlight").map(([field, cmd]) => [cmd, field])
+);
 const I3_POWER_OFF = 2;
 const I3_POWER_ON = 3;
 function idDigits(id) {
@@ -98,6 +115,8 @@ const i3 = {
   powerValue: (on) => on ? I3_POWER_ON : I3_POWER_OFF,
   // A dark backlight (000) is still a display that is on.
   isPowerOn: (value) => value === 0 || value === 1 || value === I3_POWER_ON,
+  backlightFromPower: (value) => value === 0 ? false : value === 1 ? true : void 0,
+  polled: ["power", "volume", "mute", "input"],
   encodeSet: (field, value, id) => Buffer.concat([
     Buffer.from([I3_START]),
     idDigits(id),
@@ -159,7 +178,6 @@ const CODECS = { a9, i3 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   CODECS,
-  FIELDS,
   a9,
   i3
 });

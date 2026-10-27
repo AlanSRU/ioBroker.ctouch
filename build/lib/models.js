@@ -19,11 +19,64 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var models_exports = {};
 __export(models_exports, {
   DEFAULT_MODEL: () => DEFAULT_MODEL,
+  KEY_LABELS: () => KEY_LABELS,
   MODELS: () => MODELS,
   formatInput: () => formatInput,
   parseInput: () => parseInput
 });
 module.exports = __toCommonJS(models_exports);
+const KEY_LABELS = {
+  power: "Power",
+  input: "Input menu",
+  up: "Up",
+  down: "Down",
+  left: "Left",
+  right: "Right",
+  enter: "Enter",
+  menu: "Menu",
+  home: "Home",
+  exit: "Back / Exit",
+  volumeUp: "Volume +",
+  volumeDown: "Volume -",
+  mute: "Mute",
+  backlight: "Backlight mute",
+  blank: "Blank",
+  freeze: "Freeze",
+  screenshot: "Screenshot",
+  annotation: "Annotation"
+};
+const ANNEX_B_KEYS = {
+  power: 215,
+  input: 192,
+  up: 146,
+  down: 216,
+  left: 151,
+  right: 159,
+  enter: 155,
+  menu: 132,
+  home: 188,
+  exit: 212,
+  volumeUp: 131,
+  volumeDown: 134,
+  mute: 223,
+  backlight: 178,
+  freeze: 184,
+  screenshot: 98
+};
+const CACTUS_KEYS = {
+  volumeUp: 0,
+  volumeDown: 1,
+  up: 10,
+  down: 11,
+  left: 12,
+  right: 13,
+  enter: 14,
+  menu: 20,
+  input: 21,
+  exit: 22,
+  mute: 33,
+  home: 34
+};
 const MODELS = {
   laserNova: {
     name: "CTOUCH Laser Nova",
@@ -40,7 +93,8 @@ const MODELS = {
       { code: 9, name: "Inside PC" },
       { code: 13, name: "Android" },
       { code: 12, name: "Home" }
-    ]
+    ],
+    keys: ANNEX_B_KEYS
   },
   laserSky: {
     name: "CTOUCH Laser Sky",
@@ -58,7 +112,8 @@ const MODELS = {
       { code: 20, name: "VGA" },
       { code: 9, name: "Inside PC" },
       { code: 12, name: "Home" }
-    ]
+    ],
+    keys: ANNEX_B_KEYS
   },
   rivaR2: {
     name: "CTOUCH Riva R2",
@@ -77,7 +132,8 @@ const MODELS = {
       { code: 1, name: "AV" },
       { code: 9, name: "Inside PC" },
       { code: 12, name: "Android" }
-    ]
+    ],
+    keys: ANNEX_B_KEYS
   },
   neo: {
     name: "CTOUCH Neo",
@@ -92,7 +148,21 @@ const MODELS = {
       { code: 14, name: "USB-C" },
       { code: 9, name: "OPS" },
       { code: 12, name: "Android" }
-    ]
+    ],
+    // its own table: no cursor keys, and an annotation key
+    keys: {
+      power: 215,
+      input: 192,
+      enter: 155,
+      menu: 132,
+      home: 188,
+      exit: 212,
+      mute: 223,
+      volumeUp: 131,
+      volumeDown: 134,
+      screenshot: 98,
+      annotation: 85
+    }
   },
   cactus: {
     name: "i3-CONNECT Cactus",
@@ -106,7 +176,8 @@ const MODELS = {
       { code: 21, name: "HDMI 3" },
       { code: 22, name: "HDMI 4" },
       { code: 101, name: "Android" }
-    ]
+    ],
+    keys: CACTUS_KEYS
   },
   veneer2: {
     name: "i3-CONNECT Veneer 2",
@@ -124,7 +195,8 @@ const MODELS = {
       { code: 0, name: "VGA" },
       { code: 103, name: "Slot-in PC" },
       { code: 101, name: "Android" }
-    ]
+    ],
+    keys: { ...CACTUS_KEYS, blank: 31, freeze: 32 }
   }
 };
 const DEFAULT_MODEL = "laserNova";
@@ -141,6 +213,7 @@ function parseInput(protocol, value) {
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   DEFAULT_MODEL,
+  KEY_LABELS,
   MODELS,
   formatInput,
   parseInput

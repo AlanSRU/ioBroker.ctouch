@@ -6,6 +6,7 @@
  *       request  A9 <cmd> <ID> <data> 8A        query: data = AA
  *       ACK      A9 41 <ID> <cmd> <data> 8A     data = value set, or the current value
  *       NAK      A9 4E <ID> <cmd> <err> 8A      01 invalid command, 02 invalid data
+ *       A remote key (16) is answered by an ACK echoing the key code, and cannot be queried.
  *       ID 00 broadcasts and is never acknowledged; 00, 8A and A9 are not valid IDs.
  *
  * "i3"  i3-CONNECT ASCII (Cactus v1.2, Veneer 2 v1.0)
@@ -14,11 +15,12 @@
  *       value    3A <ID ID> 72 <cmd> <d d d> 0D    ":01r8050\r"  (the answer to a get)
  *       ACK      34 <ID ID> 2B 0D                  "401+\r"      (to a set; carries no value)
  *       NAK      34 <ID ID> 2D 0D                  "401-\r"
+ *       The backlight is part of the power command (set 000 off / 001 on), so it has no query of its
+ *       own: the power reply reports it. A remote key (41) cannot be queried.
  */
 
-/** What the adapter controls. Every family supports all four. */
-export type Field = 'power' | 'volume' | 'mute' | 'input';
-export const FIELDS: readonly Field[] = ['power', 'volume', 'mute', 'input'];
+/** What the adapter controls. Every family supports all six. */
+export type Field = 'power' | 'volume' | 'mute' | 'input' | 'backlight' | 'key';
 
 export type ProtocolName = 'a9' | 'i3';
 
@@ -49,6 +51,10 @@ export interface Codec {
     powerValue(on: boolean): number;
     /** Whether a reported power value means the display is on. */
     isPowerOn(value: number): boolean;
+    /** Whether a reported power value says the backlight is on; undefined when it does not tell. */
+    backlightFromPower(value: number): boolean | undefined;
+    /** The fields that can be queried, i.e. read back every poll. */
+    readonly polled: readonly Field[];
     /** The bytes that set a field. */
     encodeSet(field: Field, value: number, id: number): Buffer;
     /** The bytes that ask for a field's current value. */
@@ -66,7 +72,14 @@ const A9_END = 0x8a;
 const A9_QUERY = 0xaa;
 const A9_ACK = 0x41;
 const A9_NAK = 0x4e;
-const A9_CMD: Record<Field, number> = { power: 0x11, volume: 0x13, mute: 0x14, input: 0x15 };
+const A9_CMD: Record<Field, number> = {
+    power: 0x11,
+    backlight: 0x12,
+    volume: 0x13,
+    mute: 0x14,
+    input: 0x15,
+    key: 0x16,
+};
 const A9_FIELD = new Map(Object.entries(A9_CMD).map(([field, cmd]) => [cmd, field as Field]));
 
 function errorText(code: number): string {
@@ -81,6 +94,9 @@ export const a9: Codec = {
     name: 'a9',
     powerValue: on => (on ? 0x01 : 0x00),
     isPowerOn: value => value === 0x01,
+    // the backlight has its own query
+    backlightFromPower: () => undefined,
+    polled: ['power', 'volume', 'mute', 'input', 'backlight'],
     encodeSet: (field, value, id) => Buffer.from([A9_START, A9_CMD[field], id, value, A9_END]),
     encodeQuery: (field, id) => Buffer.from([A9_START, A9_CMD[field], id, A9_QUERY, A9_END]),
     checkId: id =>
@@ -131,8 +147,20 @@ export const a9: Codec = {
 const I3_START = 0x3a; // ':'
 const I3_REPLY_START = 0x34; // '4'
 const I3_END = 0x0d;
-const I3_CMD: Record<Field, number> = { power: 0x30, volume: 0x38, mute: 0x39, input: 0x3a };
-const I3_FIELD = new Map(Object.entries(I3_CMD).map(([field, cmd]) => [cmd, field as Field]));
+const I3_CMD: Record<Field, number> = {
+    power: 0x30,
+    volume: 0x38,
+    mute: 0x39,
+    input: 0x3a,
+    backlight: 0x30,
+    key: 0x41,
+};
+// 0x30 replies are power replies: the backlight shares the command but is not queried by itself
+const I3_FIELD = new Map(
+    Object.entries(I3_CMD)
+        .filter(([field]) => field !== 'backlight')
+        .map(([field, cmd]) => [cmd, field as Field]),
+);
 /** Power set values: 002 off, 003 on. Reported: 000 backlight off, 001 backlight on, 002 off. */
 const I3_POWER_OFF = 2;
 const I3_POWER_ON = 3;
@@ -150,6 +178,8 @@ export const i3: Codec = {
     powerValue: on => (on ? I3_POWER_ON : I3_POWER_OFF),
     // A dark backlight (000) is still a display that is on.
     isPowerOn: value => value === 0 || value === 1 || value === I3_POWER_ON,
+    backlightFromPower: value => (value === 0 ? false : value === 1 ? true : undefined),
+    polled: ['power', 'volume', 'mute', 'input'],
     encodeSet: (field, value, id) =>
         Buffer.concat([
             Buffer.from([I3_START]),

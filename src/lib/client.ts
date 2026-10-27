@@ -72,7 +72,7 @@ interface Request {
 
 const REPLY_TIMEOUT_MS = 500;
 const RECONNECT_MS = 10_000;
-/** Two status rounds of four queries. */
+/** About two status rounds (four or five queries each). */
 const OFFLINE_AFTER_MISSED = 8;
 
 /** One display connection: requests go out one at a time, each waiting for its reply. */
@@ -126,14 +126,15 @@ export class DisplayClient extends EventEmitter<ClientEvents> {
     }
 
     /**
-     * Set a value. A newer set of the same field replaces one still waiting (a dragged slider).
+     * Set a value. A newer set of the same field replaces one still waiting (a dragged slider);
+     * key presses are all sent (three presses of Down move three places).
      *
      * @param field - what to set
      * @param value - the device value
      * @param timeoutMs - reply timeout, longer when re-selecting the current input
      */
     public set(field: Field, value: number, timeoutMs = this.options.replyTimeoutMs ?? REPLY_TIMEOUT_MS): void {
-        const waiting = this.queue.findIndex(r => r.field === field && r.value !== undefined);
+        const waiting = field === 'key' ? -1 : this.queue.findIndex(r => r.field === field && r.value !== undefined);
         if (waiting >= 0) {
             this.queue.splice(waiting, 1);
         }

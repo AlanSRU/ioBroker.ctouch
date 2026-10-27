@@ -193,6 +193,14 @@ class Ctouch extends utils.Adapter {
       write: true,
       states: Object.fromEntries(d.model.inputs.map((i) => [(0, import_models.formatInput)(d.model.protocol, i.code), i.name]))
     });
+    await state("control.backlight", { name: "Backlight", type: "boolean", role: "switch", write: true });
+    await state("control.key", {
+      name: "Remote key",
+      type: "string",
+      role: "state",
+      write: true,
+      states: Object.fromEntries(Object.keys(d.model.keys).map((k) => [k, import_models.KEY_LABELS[k]]))
+    });
     await state("info.connection", {
       name: "Display answering",
       type: "boolean",
@@ -230,7 +238,7 @@ class Ctouch extends utils.Adapter {
     c.on("discarded", (bytes) => this.log.debug(`[${d.label}] ignored ${bytes.toString("hex")}`));
   }
   queryAll(d) {
-    import_protocol.FIELDS.forEach((field) => d.client.query(field));
+    d.codec.polled.forEach((field) => d.client.query(field));
   }
   async onAnswering(d, answering) {
     this.log.info(`[${d.label}] ${answering ? "answering" : "not answering"}`);
@@ -244,12 +252,31 @@ class Ctouch extends utils.Adapter {
   async onValue(d, field, value) {
     let val;
     switch (field) {
-      case "power":
+      case "power": {
         val = d.codec.isPowerOn(value);
+        const lit = d.codec.backlightFromPower(value);
+        if (lit !== void 0) {
+          await this.setState(`${d.id}.control.backlight`, { val: lit, ack: true });
+        }
         break;
+      }
       case "mute":
+      case "backlight":
         val = value === 1;
         break;
+      case "key": {
+        const key = Object.keys(d.model.keys).find((k) => d.model.keys[k] === value);
+        if (key === void 0) {
+          return;
+        }
+        val = key;
+        if (key === "volumeUp" || key === "volumeDown") {
+          d.client.query("volume");
+        } else if (key === "mute") {
+          d.client.query("mute");
+        }
+        break;
+      }
       case "volume":
         val = value;
         break;
@@ -271,8 +298,9 @@ class Ctouch extends utils.Adapter {
   async fail(d, message, field) {
     this.log.warn(`[${d.label}] ${message}`);
     await this.setState(`${d.id}.info.lastError`, { val: message, ack: true });
-    if (field) {
-      d.client.query(field);
+    const readBack = field === "backlight" && !d.codec.polled.includes("backlight") ? "power" : field;
+    if (readBack && d.codec.polled.includes(readBack)) {
+      d.client.query(readBack);
     }
   }
   /**
@@ -315,6 +343,21 @@ class Ctouch extends utils.Adapter {
       case "control.mute":
         d.client.set("mute", state.val === true || state.val === "true" || state.val === 1 ? 1 : 0);
         break;
+      case "control.backlight":
+        d.client.set("backlight", state.val === true || state.val === "true" || state.val === 1 ? 1 : 0);
+        break;
+      case "control.key": {
+        const key2 = String(state.val);
+        if (!Object.hasOwn(d.model.keys, key2)) {
+          await this.fail(
+            d,
+            `key: "${key2}" is not a ${d.model.name} key (${Object.keys(d.model.keys).join(", ")})`
+          );
+          return;
+        }
+        d.client.set("key", d.model.keys[key2]);
+        break;
+      }
       case "control.input": {
         const code = (0, import_models.parseInput)(d.model.protocol, state.val);
         if (code === void 0 || !d.model.inputs.some((i) => i.code === code)) {

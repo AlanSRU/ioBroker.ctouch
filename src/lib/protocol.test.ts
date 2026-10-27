@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { a9, i3 } from './protocol';
-import { MODELS, formatInput, parseInput } from './models';
+import { KEY_LABELS, MODELS, formatInput, parseInput } from './models';
 
 const hex = (b: Buffer): string => b.toString('hex').toUpperCase();
 const bytes = (s: string): Buffer => Buffer.from(s.replace(/\s/g, ''), 'hex');
@@ -45,6 +45,18 @@ describe('a9 codec (CTOUCH binary)', () => {
         ]);
     });
 
+    it('encodes the backlight and remote keys', () => {
+        expect(hex(a9.encodeSet('backlight', 0, 9))).to.equal('A91209008A');
+        expect(hex(a9.encodeQuery('backlight', 9))).to.equal('A91209AA8A');
+        expect(hex(a9.encodeSet('key', MODELS.laserNova.keys.menu, 9))).to.equal('A91609848A');
+        expect(a9.decode(bytes('A9 41 09 16 84 8A')).replies).to.deep.equal([
+            { kind: 'value', field: 'key', value: 0x84 },
+        ]);
+        expect(a9.decode(bytes('A9 41 09 12 01 8A')).replies).to.deep.equal([
+            { kind: 'value', field: 'backlight', value: 1 },
+        ]);
+    });
+
     it('rejects reserved Set IDs', () => {
         expect(a9.checkId(9)).to.equal(undefined);
         expect(a9.checkId(0)).to.be.a('string'); // broadcast: never acknowledged
@@ -70,6 +82,22 @@ describe('i3 codec (i3-CONNECT ASCII)', () => {
             { kind: 'ack' },
             { kind: 'nak', reason: 'refused' },
         ]);
+    });
+
+    it('sets the backlight through the power command, and keys through 0x41', () => {
+        // the document's examples: Backlight Off, Backlight On, remote Up
+        expect(hex(i3.encodeSet('backlight', 0, 1))).to.equal('3A303153303030300D');
+        expect(hex(i3.encodeSet('backlight', 1, 1))).to.equal('3A303153303030310D');
+        expect(hex(i3.encodeSet('key', MODELS.cactus.keys.up, 1))).to.equal('3A303153413031300D');
+    });
+
+    it('decodes a power reply as power, and reads the backlight from it', () => {
+        expect(i3.decode(bytes('3A 30 31 72 30 30 30 30 0D')).replies).to.deep.equal([
+            { kind: 'value', field: 'power', value: 0 },
+        ]);
+        expect(i3.backlightFromPower(0)).to.equal(false);
+        expect(i3.backlightFromPower(1)).to.equal(true);
+        expect(i3.backlightFromPower(2)).to.equal(undefined);
     });
 
     it('reads a dark backlight as power on, and power off as off', () => {
@@ -98,6 +126,14 @@ describe('models', () => {
     it('keeps the Laser Nova inputs the venue uses', () => {
         const codes = MODELS.laserNova.inputs.map(i => formatInput('a9', i.code));
         expect(codes).to.include.members(['05', '06', '08']);
+    });
+
+    it('has a label for every key, and no duplicate key codes within a model', () => {
+        for (const [id, model] of Object.entries(MODELS)) {
+            Object.keys(model.keys).forEach(k => expect(KEY_LABELS, `${id} ${k}`).to.have.property(k));
+            const codes = Object.values(model.keys);
+            expect(new Set(codes).size, id).to.equal(codes.length);
+        }
     });
 
     it('has no duplicate input codes within a model', () => {
